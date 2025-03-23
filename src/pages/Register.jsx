@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, use } from 'react';
 import { Link } from 'react-router-dom';
 import { faTimes, faCheck, faInfoCircle, faIdCard } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -8,6 +8,8 @@ const USER_REG = /^[a-zA-Z0-9-_]{4,24}$/;
 const PWD_REG = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,24}$/;
 const MOB_REG = /^0[0-9]{9}$/;
 const NAME_REG = /^[a-zA-Z ]{4,24}$/;
+const EMAIL_REG = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const ADDR_REG = /^[a-zA-Z0-9, ]{4,}$/;
 
 const Register = () => {
     const userRef = useRef();
@@ -32,6 +34,14 @@ const Register = () => {
     const [matchPwd, setMatchPwd] = useState('');
     const [validMatch, setValidMatch] = useState(false);
     const [matchFocus, setMatchFocus] = useState(false);
+
+    const [email, setEmail] = useState('');
+    const [validEmail, setValidEmail] = useState(false);
+    const [emailFocus, setEmailFocus] = useState(false);
+
+    const [address, setAddress] = useState('');
+    const [validAddr, setValidAddr] = useState(false);
+    const [addrFocus, setAddrFocus] = useState(false);
 
     const [role, setRole] = useState('Buyer');
     const [errMsg, setErrMsg] = useState('');
@@ -63,17 +73,27 @@ const Register = () => {
     }, [pwd, matchPwd]);
 
     useEffect(() => {
+        const result = ADDR_REG.test(address);  
+        setValidAddr(result);
+    }, [address]);
+
+    useEffect(() => {
+        const result = EMAIL_REG.test(email);
+        setValidEmail(result);
+    }, [email]);
+
+    useEffect(() => {
         setErrMsg('');
     }, [user, pwd, matchPwd]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!validName || !validFullName || !validMobile || !validPwd || !validMatch) {
+        if (!validName || !validFullName || !validMobile || !validPwd || !validMatch || !validAddr || !validEmail) {
             setErrMsg('Please fill out the form correctly.');
             return;
         }
         // Handle successful form submission (e.g., API call)
-        console.log({ user, fullName, mobile, pwd, role });
+        console.log({ user, fullName, mobile, pwd, email, address, role });
     };
 
     return (
@@ -91,7 +111,7 @@ const Register = () => {
                 </h1>
 
                 <form className='m-4' onSubmit={handleSubmit}>
-                    <div className='flex flex-col gap-8 my-8 text-white'>
+                    <div className='flex flex-col items-center gap-8 my-8 text-white'>
                         <input
                             className="w-[90%] border-b-2  bg-transparent focus:outline-none focus:border-b-black "
                             type='text'
@@ -143,6 +163,41 @@ const Register = () => {
                         />
                         <p id="mobnote" className={`${mobileFocus && mobile && !validMobile ? 'text-white bg-slate-600 rounded-md w-[90%] p-2 mt-1 text-sm' : 'hidden'}`}>
                             <FontAwesomeIcon icon={faInfoCircle} /> Start with 0. Must have 10 numbers.
+                        </p>
+
+                        <input type="email" 
+                            className="w-[90%] border-b-2  bg-transparent focus:outline-none focus:border-b-black"
+                            id="email"
+                            placeholder="Email"
+                            onChange={(e) => setEmail(e.target.value)}
+                            value={email}
+                            required
+                            aria-invalid={validEmail ? 'false' : 'true'}
+                            aria-describedby='emailnote'
+                            onFocus={() => setEmailFocus(true)}
+                            onBlur={() => setEmailFocus(false)}
+
+                        />
+                        <p id="emailnote" className={`${emailFocus && email && !validEmail ? 'text-white bg-slate-600 rounded-md w-[90%] p-2 mt-1 text-sm' : 'hidden'}`}>
+                            <FontAwesomeIcon icon={faInfoCircle} /> Enter a valid email address.
+                        </p>
+
+
+                        <input type="text" 
+                            className="w-[90%] border-b-2  bg-transparent focus:outline-none focus:border-b-black"
+                            id="address"
+                            placeholder="Address"
+                            onChange={(e) => setAddress(e.target.value)}
+                            value={address}
+                            required
+                            aria-invalid={validAddr ? 'false' : 'true'}
+                            aria-describedby='addrnote'
+                            onFocus={() => setAddrFocus(true)}
+                            onBlur={() => setAddrFocus(false)}
+
+                        />
+                        <p id="addrnote" className={`${addrFocus && address && !validAddr ? 'text-white bg-slate-600 rounded-md w-[90%] p-2 mt-1 text-sm' : 'hidden'}`}>
+                            <FontAwesomeIcon icon={faInfoCircle} /> Minimum 4 characters. Allow letters, numbers, commas, and spaces.
                         </p>
 
                         <input
